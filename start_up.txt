@@ -1,0 +1,4 @@
+# start up
+run shell command to install all dependencies from package.json:
+
+$ pnpm i
