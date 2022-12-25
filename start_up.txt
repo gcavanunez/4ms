@@ -1,4 +1,13 @@
 # start up
 run shell command to install all dependencies from package.json:
 
-$ pnpm i
+$ pnpm install
+
+# Prisma
+Download primsa from VSCode Extension
+
+run shell command
+$ npx prisma db push
+
+# run 
+$ next dev

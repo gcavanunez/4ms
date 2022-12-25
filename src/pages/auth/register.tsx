@@ -1,3 +1,4 @@
+import { trpc } from "@/utils/trpc";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
@@ -11,10 +12,21 @@ import type { FormEvent } from "react";
  *
  */
 
+// constant type Home whose type of NextPage is a function that takes 0 arguments and returns an object denoted within curly braces
 const Home: NextPage = () => {
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log("form submited");
+  const { data, mutate } = trpc.auth.register.useMutation()
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log(event.currentTarget)
+    const data = new FormData(event.currentTarget);
+    // values (strings) | values (files)
+    // const lilMap = new Map<string, string>([['key', 'value']]);
+    // const mapObj = Object.fromEntries(lilMap.entries());
+    const form = Object.fromEntries(data.entries());
+    console.log("form submited", form);
+    // data?.message
+    // mutate({})
+
   };
   return (
     <>
