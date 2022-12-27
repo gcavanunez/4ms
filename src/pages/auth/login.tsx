@@ -2,6 +2,7 @@ import { trpc } from "@/utils/trpc";
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import type { FormEvent } from "react";
 
 /**
@@ -14,16 +15,23 @@ import type { FormEvent } from "react";
 
 const Home: NextPage = () => {
   const { mutate, data, error } = trpc.auth.login.useMutation();
-
+  const router = useRouter();
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const form = Object.fromEntries(data.entries());
     if (form.email && form.password) {
-      mutate({
-        email: String(form.email),
-        password: String(form.password),
-      });
+      mutate(
+        {
+          email: String(form.email),
+          password: String(form.password),
+        },
+        {
+          onSuccess: () => {
+            router.push("/dashboard");
+          },
+        }
+      );
     }
   };
   return (

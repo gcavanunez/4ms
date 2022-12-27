@@ -103,4 +103,21 @@ export const authRouter = router({
         message: "Password created",
       };
     }),
+  getUser: publicProcedure.query(async ({ ctx }) => {
+    // console.log({ id: ctx.session.user?.id });
+    if (!ctx.session.user?.id) {
+      throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
+    }
+    const user = await ctx.prisma.user.findFirst({
+      where: {
+        id: ctx.session.user.id,
+      },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
+    }
+    return {
+      user,
+    };
+  }),
 });
