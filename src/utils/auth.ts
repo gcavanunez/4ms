@@ -21,6 +21,12 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: HookProps) => {
     refetchOnWindowFocus: false,
     retry: false,
   });
+
+  const { mutate } = trpc.auth.logout.useMutation({
+    // staleTime: 1000,
+    retry: false,
+  });
+
   // ('/api/user', () =>
   //     axios
   //         .get('/api/user')
@@ -108,11 +114,17 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: HookProps) => {
   const logout = useCallback(async () => {
     if (!error) {
       // await axios.post('/logout').then(() => mutate())
+      mutate(undefined, {
+        onSuccess: () => {
+          router.push("/auth/login");
+        },
+      });
+      return;
     }
 
     // window.location.pathname = '/login'
     router.push("/auth/login");
-  }, [error, router]);
+  }, [error, router, mutate]);
 
   console.log({ error });
   useEffect(() => {

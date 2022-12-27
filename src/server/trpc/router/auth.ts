@@ -120,4 +120,20 @@ export const authRouter = router({
       user,
     };
   }),
+  logout: publicProcedure.mutation(async ({ ctx }) => {
+    // console.log({ id: ctx.session.user?.id });
+    // if (!ctx.session.user?.id) {
+    //   throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
+    // }
+    // const user = await ctx.prisma.user.findFirst({
+    //   where: {
+    //     id: ctx.session.user.id,
+    //   },
+    // });
+    // if (!user) {
+    //   throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
+    // }
+    ctx.session.destroy();
+    return;
+  }),
 });
