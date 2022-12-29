@@ -66,7 +66,7 @@ const Page = () => {
           </div>
 
           <div className="mt-4">
-            <FormLabel htmlFor="password"> password</FormLabel>
+            <FormLabel htmlFor="password"> Password</FormLabel>
 
             <FormInput
               id="password"

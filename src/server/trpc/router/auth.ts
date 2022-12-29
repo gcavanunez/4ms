@@ -4,7 +4,13 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { router, publicProcedure } from "../trpc";
 import { getServerAuthSession } from "@/server/common/get-server-auth-session";
+import { getBaseUrl } from "@/utils/trpc";
+const lessThanOneHourAgo = (date: number) => {
+  const HOUR = 1000 * 60 * 60;
+  const anHourAgo = Date.now() - HOUR;
 
+  return date > anHourAgo;
+};
 export class BadReqTRPCError extends TRPCError {
   constructor(message: string, path: string) {
     const errorConfig = {
@@ -144,11 +150,66 @@ export const authRouter = router({
       const char = crypto.randomBytes(20).toString("hex");
       const salt = await bcrypt.genSalt(10, "b");
       const token = await bcrypt.hash(char, salt);
-
+      console.log(char);
+      const url = `${getBaseUrl()}/auth/password-reset/${char}?email=${
+        user.email
+      }`;
+      console.log(url);
       await ctx.prisma.passwordReset.create({
         data: {
           email: input.email,
           token,
+        },
+      });
+
+      return {
+        message: "We've emailed you the link to reset your password!",
+      };
+    }),
+  passwordReset: publicProcedure
+    .input(
+      z
+        .object({
+          token: z.string(),
+          email: z.string(),
+          password: z.string(),
+          password_confirm: z.string(),
+        })
+        .refine((data) => data.password === data.password_confirm, {
+          message: "Passwords don't match",
+          path: ["password_confirm"],
+        })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const latestReset = await ctx.prisma.passwordReset.findFirst({
+        where: {
+          email: input.email,
+        },
+      });
+      if (!latestReset) {
+        throw new BadReqTRPCError("Email Exists", "email");
+      }
+      const isWithingOneHour = lessThanOneHourAgo(
+        Number(new Date(latestReset.created_at))
+      );
+
+      const validHash = await bcrypt.compare(input.token, latestReset.token);
+      if (!validHash || !isWithingOneHour) {
+        throw new BadReqTRPCError("Reset link expired", "email");
+      }
+      const salt = await bcrypt.genSalt(10, "b");
+      const password = await bcrypt.hash(input.password, salt);
+      await ctx.prisma.user.update({
+        where: {
+          email: input.email,
+        },
+        data: {
+          password,
+        },
+      });
+      await ctx.prisma.passwordReset.delete({
+        where: {
+          email: input.email,
         },
       });
 
