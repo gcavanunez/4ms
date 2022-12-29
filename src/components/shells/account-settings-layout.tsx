@@ -15,16 +15,16 @@ const ActiveLink = ({
 }) => {
   const router = useRouter();
   return (
-    <Link href={href} scroll={false}>
-      <a
-        className={`${
-          router.pathname === href
-            ? "border-gray-800 text-gray-900"
-            : "border-transparent text-gray-600 hover:text-gray-700"
-        } ${className} whitespace-no-wrap block border-b-2 pb-4 text-sm font-semibold focus:text-gray-900 focus:outline-none sm:text-base`}
-      >
-        {children}
-      </a>
+    <Link
+      href={href}
+      scroll={false}
+      className={`${
+        router.pathname === href
+          ? "border-gray-800 text-gray-900"
+          : "border-transparent text-gray-600 hover:text-gray-700"
+      } ${className} whitespace-no-wrap block border-b-2 pb-4 text-sm font-semibold focus:text-gray-900 focus:outline-none sm:text-base`}
+    >
+      {children}
     </Link>
   );
 };

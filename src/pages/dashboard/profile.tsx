@@ -1,4 +1,4 @@
-import { getLayout } from "@/components/shells/app-layout";
+import { getLayout } from "@/components/shells/account-settings-layout";
 import Head from "next/head";
 
 const ProfilePage = () => {

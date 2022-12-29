@@ -42,7 +42,7 @@ const AppLayout: React.FC<
         >
           <input placeholder="sup" />
           <ActiveLink href="/dashboard">Dashboard</ActiveLink>
-          <ActiveLink href="/dashboard/profile">Dashboard</ActiveLink>
+          <ActiveLink href="/dashboard/profile">Profile</ActiveLink>
         </div>
         <div className="mx-auto flex max-w-7xl justify-between py-6 px-4 sm:px-6 lg:px-8">
           <div>{header}</div>
