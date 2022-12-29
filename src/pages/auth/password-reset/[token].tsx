@@ -2,7 +2,6 @@ import { getLayout } from "@/components/shells/auth-layout";
 import { AppButton } from "@/components/app-button";
 import { FormInput, FormInputError, FormLabel } from "@/components/app-forms";
 import { CommonCard } from "@/components/app-cards";
-// import Link from 'next/link'
 
 import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -34,14 +33,6 @@ const Page = () => {
         }
       );
     }
-
-    // resetPassword({
-    //   email,
-    //   password,
-    //   password_confirmation: passwordConfirmation,
-    //   setErrors,
-    //   setStatus,
-    // });
   };
 
   useEffect(() => {
