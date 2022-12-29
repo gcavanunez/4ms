@@ -126,7 +126,6 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: HookProps) => {
     router.push("/auth/login");
   }, [error, router, mutate]);
 
-  console.log({ error });
   useEffect(() => {
     if (middleware === "guest" && redirectIfAuthenticated && user)
       router.push(redirectIfAuthenticated);
@@ -134,7 +133,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: HookProps) => {
     //   router.push(redirectIfAuthenticated);
     if (middleware === "auth" && error) logout();
   }, [user, error, logout, router, middleware, redirectIfAuthenticated]);
-
+  console.log("---Auth hook---");
   return {
     user,
     // register,

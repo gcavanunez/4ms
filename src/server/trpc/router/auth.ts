@@ -1,16 +1,31 @@
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { router, publicProcedure } from "../trpc";
+import { getServerAuthSession } from "@/server/common/get-server-auth-session";
 
+export class BadReqTRPCError extends TRPCError {
+  constructor(message: string, path: string) {
+    const errorConfig = {
+      code: "BAD_REQUEST" as typeof TRPCError.prototype.code,
+      message: message,
+    };
+
+    super({
+      ...errorConfig,
+      // this here fixed it
+      cause: new ZodError([{ code: "custom", path: [path], message }]),
+    });
+  }
+}
 export const authRouter = router({
-  // getUser: publicProcedure.input()
   login: publicProcedure
     .input(
       z.object({
         email: z.string().email({ message: "Hey, try with an email instead" }),
         password: z.string(),
+        remember: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -21,18 +36,28 @@ export const authRouter = router({
       });
 
       if (!user) {
-        throw new TRPCError({ code: "BAD_REQUEST", cause: "User not found" });
+        // throw new TRPCError({ code: "BAD_REQUEST", cause: "User not found" });
+        throw new BadReqTRPCError("Incorrect email or password ", "password");
       }
 
-      if (user.password !== input.password) {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          cause: "Hey your password is wrong",
+      const valid_hash = await bcrypt.compare(input.password, user.password);
+      if (!valid_hash) {
+        throw new BadReqTRPCError("Incorrect email or password ", "password");
+      }
+
+      if (input.remember) {
+        const session = await getServerAuthSession({
+          req: ctx.request,
+          res: ctx.response,
+          ttl: 0,
         });
+        session["user"] = { id: user.id };
+        await session.save();
+        ctx.session = session;
+      } else {
+        ctx.session["user"] = { id: user.id };
+        await ctx.session.save();
       }
-
-      ctx.session["user"] = { id: user.id };
-      await ctx.session.save();
 
       return {
         user,
@@ -40,22 +65,43 @@ export const authRouter = router({
     }),
   register: publicProcedure
     .input(
-      z.object({
-        name: z.string(),
-        email: z.string(),
-        password: z.string(),
-        password_confirm: z.string(),
-      })
+      z
+        .object({
+          name: z.string(),
+          email: z.string(),
+          password: z.string(),
+          password_confirm: z.string(),
+        })
+        .refine((data) => data.password === data.password_confirm, {
+          message: "Passwords don't match",
+          path: ["password_confirm"],
+        })
     )
     .mutation(async ({ input, ctx }) => {
-      /**
-       * 1. check if password and confirm password are the same, if not return an error
-       * 2. ctx.prisma.user.create({data:{...}})
-       * 3. return a sucess response
-       */
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          email: input.email,
+        },
+      });
+      if (user) {
+        // const err = new ZodError([
+        //   { code: "custom", message: "Email exists", path: ["email"] },
+        // ]);
+        // throw new TRPCError({ code: "BAD_REQUEST", cause: err });
+        throw new BadReqTRPCError("Email Exists", "email");
+      }
 
+      const salt = await bcrypt.genSalt(10, "b");
+      const password = await bcrypt.hash(input.password, salt);
+      await ctx.prisma.user.create({
+        data: {
+          email: input.email,
+          name: input.name,
+          password,
+        },
+      });
       return {
-        message: "Success",
+        message: input,
       };
     }),
   passwordEmail: publicProcedure
@@ -82,11 +128,18 @@ export const authRouter = router({
         throw new TRPCError({ code: "BAD_REQUEST", cause: "User not found" });
       }
 
-      await ctx.prisma.passwordReset.delete({
+      const hasToken = await ctx.prisma.passwordReset.findFirst({
         where: {
           email: input.email,
         },
       });
+      if (hasToken) {
+        await ctx.prisma.passwordReset.delete({
+          where: {
+            email: input.email,
+          },
+        });
+      }
 
       const char = crypto.randomBytes(20).toString("hex");
       const salt = await bcrypt.genSalt(10, "b");
@@ -100,7 +153,7 @@ export const authRouter = router({
       });
 
       return {
-        message: "Password created",
+        message: "We've emailed you the link to reset your password!",
       };
     }),
   getUser: publicProcedure.query(async ({ ctx }) => {
@@ -121,18 +174,6 @@ export const authRouter = router({
     };
   }),
   logout: publicProcedure.mutation(async ({ ctx }) => {
-    // console.log({ id: ctx.session.user?.id });
-    // if (!ctx.session.user?.id) {
-    //   throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
-    // }
-    // const user = await ctx.prisma.user.findFirst({
-    //   where: {
-    //     id: ctx.session.user.id,
-    //   },
-    // });
-    // if (!user) {
-    //   throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
-    // }
     ctx.session.destroy();
     return;
   }),

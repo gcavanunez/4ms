@@ -1,5 +1,6 @@
 import { getIronSession } from "iron-session";
 import { type GetServerSidePropsContext } from "next";
+import { ironOptions } from "./iron-session-options";
 
 /**
  * Wrapper for unstable_getServerSession https://next-auth.js.org/configuration/nextjs
@@ -8,13 +9,11 @@ import { type GetServerSidePropsContext } from "next";
 export const getServerAuthSession = async (ctx: {
   req: GetServerSidePropsContext["req"];
   res: GetServerSidePropsContext["res"];
+  ttl?: number;
 }) => {
   return await getIronSession(ctx.req, ctx.res, {
-    cookieName: "myapp_cookiename",
-    password: "complex_password_at_least_32_characters_long",
-    // secure: true should be used in production (HTTPS) but can't be used in development (HTTP)
-    cookieOptions: {
-      secure: process.env.NODE_ENV === "production",
-    },
+    ...ironOptions,
+    // ttl: 120,
+    ttl: ctx.ttl === 0 || ctx.ttl ? ctx.ttl : 3600,
   });
 };

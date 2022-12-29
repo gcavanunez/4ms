@@ -1,0 +1,64 @@
+// button.tsx
+import React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+
+// ⚠️ Disclaimer: Use of Tailwind CSS is optional
+const button = cva(
+  "inline-flex  items-center justify-center rounded-md border text-center  font-semibold uppercase tracking-widest transition focus:outline-none focus:ring disabled:opacity-25",
+  {
+    variants: {
+      width: {
+        full: ["w-full"],
+        auto: ["w-auto"],
+      },
+      intent: {
+        primary: [
+          "bg-gray-800",
+          "text-white",
+          "border-transparent",
+          "hover:bg-gray-700",
+          "focus:border-gray-900",
+          "focus:ring-gray-300",
+          "active:bg-gray-900",
+        ],
+        secondary: [
+          "bg-white",
+          "text-gray-800",
+          "border-gray-400",
+          "hover:bg-gray-100",
+
+          "focus:border-gray-500",
+          "focus:ring-gray-300",
+          "active:bg-gray-50",
+        ],
+      },
+      size: {
+        small: ["text-xs", "py-1", "px-2"],
+        medium: ["text-sm", "py-2", "px-4"],
+      },
+    },
+    // https://github.com/joe-bell/cva#targeting-multiple-variant-conditions
+    // compoundVariants: [{ intent: "primary", size: "medium" }],
+    defaultVariants: {
+      intent: "primary",
+      size: "medium",
+      width: "full",
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    // extends React.HTMLAttributes<HTMLButtonElement>,
+    // ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof button> {}
+
+export const AppButton: React.FC<ButtonProps> = ({
+  className,
+  intent,
+  size,
+  width,
+  ...props
+}) => (
+  <button className={button({ intent, size, className, width })} {...props} />
+);
