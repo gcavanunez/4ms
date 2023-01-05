@@ -1,6 +1,6 @@
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
-import Email from "@/emails/forgot-password-email";
+import Email from "@/components/emails/forgot-password-email";
 
 import { env } from "@/env/server.mjs";
 
