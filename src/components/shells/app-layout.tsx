@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuth } from "@/utils/auth";
 import type { PropsWithChildren } from "react";
+import { useState } from "react";
 const ActiveLink = ({
   children,
   href,
@@ -26,13 +27,19 @@ const ActiveLink = ({
     </Link>
   );
 };
-
+let layrenderCount = 0;
 const AppLayout: React.FC<
   PropsWithChildren & { header?: React.ReactNode | undefined }
 > = ({ header, children }) => {
   const { user, logout } = useAuth({ middleware: "auth" });
+  const [count, setCount] = useState(0);
+  console.log("layout render count", layrenderCount++);
+  function handleClick() {
+    setCount(count + 1);
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-100">
       {/* <Navigation user={user} /> */}
       {/* Page Heading */}
       <header className="bg-white shadow">
@@ -40,7 +47,6 @@ const AppLayout: React.FC<
           className="scrollbar-none mt-6 flex space-x-4 overflow-x-auto"
           style={{ boxShadow: "inset 0 -2px 0 #edf2f7" }}
         >
-          <input placeholder="sup" />
           <ActiveLink href="/dashboard">Dashboard</ActiveLink>
           <ActiveLink href="/dashboard/profile">Profile</ActiveLink>
         </div>
@@ -57,6 +63,7 @@ const AppLayout: React.FC<
             >
               Logout
             </button>
+            <button onClick={handleClick}>Clicked {count} times</button>
           </div>
         </div>
       </header>
@@ -67,8 +74,8 @@ const AppLayout: React.FC<
   );
 };
 
-export const getLayout = (page: React.ReactNode) => (
-  <AppLayout>{page}</AppLayout>
+export const getLayout = (page: React.ReactNode, header?: React.ReactNode) => (
+  <AppLayout header={header}>{page}</AppLayout>
 );
 
 export default AppLayout;

@@ -9,7 +9,7 @@ import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 const Page = () => {
   const router = useRouter();
-  const { mutate, error } = trpc.auth.register.useMutation();
+  const { isLoading, mutate, error } = trpc.auth.register.useMutation();
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -98,7 +98,9 @@ const Page = () => {
           </div>
 
           <div className="mt-8 flex items-center justify-end">
-            <AppButton type="submit">Register</AppButton>
+            <AppButton disabled={isLoading} type="submit">
+              Register
+            </AppButton>
           </div>
           <div className="mt-4 text-center">
             <Link

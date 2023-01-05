@@ -5,6 +5,7 @@ import crypto from "crypto";
 import { router, publicProcedure } from "../trpc";
 import { getServerAuthSession } from "@/server/common/get-server-auth-session";
 import { getBaseUrl } from "@/utils/trpc";
+import { SendEmail } from "@/server/actions/send-forgot-password-email";
 const lessThanOneHourAgo = (date: number) => {
   const HOUR = 1000 * 60 * 60;
   const anHourAgo = Date.now() - HOUR;
@@ -161,7 +162,7 @@ export const authRouter = router({
           token,
         },
       });
-
+      await SendEmail({ url });
       return {
         message: "We've emailed you the link to reset your password!",
       };

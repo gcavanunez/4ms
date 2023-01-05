@@ -1,6 +1,8 @@
 // button.tsx
 import React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { LinkProps } from "next/link";
+import Link from "next/link";
 
 // ⚠️ Disclaimer: Use of Tailwind CSS is optional
 const button = cva(
@@ -31,9 +33,19 @@ const button = cva(
           "focus:ring-gray-300",
           "active:bg-gray-50",
         ],
+        tertiary: [
+          "bg-transparent",
+          "text-gray-800",
+          "border-transparent",
+          "hover:bg-gray-100",
+
+          "focus:border-gray-400",
+          "focus:ring-gray-300",
+          "active:bg-gray-50",
+        ],
       },
       size: {
-        small: ["text-xs", "py-1", "px-2"],
+        small: ["text-xs", "py-1.5", "px-2"],
         medium: ["text-sm", "py-2", "px-4"],
       },
     },
@@ -49,8 +61,6 @@ const button = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    // extends React.HTMLAttributes<HTMLButtonElement>,
-    // ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof button> {}
 
 export const AppButton: React.FC<ButtonProps> = ({
@@ -61,4 +71,18 @@ export const AppButton: React.FC<ButtonProps> = ({
   ...props
 }) => (
   <button className={button({ intent, size, className, width })} {...props} />
+);
+
+type AppLinkProps = LinkProps &
+  React.AnchorHTMLAttributes<HTMLAnchorElement> &
+  VariantProps<typeof button>;
+
+export const AppLink: React.FC<AppLinkProps> = ({
+  className,
+  intent,
+  size,
+  width,
+  ...props
+}) => (
+  <Link className={button({ intent, size, className, width })} {...props} />
 );

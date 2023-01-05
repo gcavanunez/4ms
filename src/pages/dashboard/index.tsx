@@ -1,16 +1,11 @@
 import { getLayout } from "@/components/shells/app-layout";
 // import AppLayout from "@/components/app-layout";
 import Head from "next/head";
+import { useState } from "react";
 
 const Dashboard = () => {
   return (
     <>
-      {/* header={
-        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-          Dashboard
-        </h2>
-      }
-    > */}
       <Head>
         <title>Laravel - Dashboard</title>
       </Head>
@@ -27,6 +22,18 @@ const Dashboard = () => {
     </>
   );
 };
-Dashboard.getLayout = getLayout;
+let renderCount = 0;
+const Header = () => {
+  const [count, setCount] = useState(0);
+  console.log("header render count", renderCount++);
+  function handleClick() {
+    setCount(count + 1);
+  }
+
+  return <button onClick={handleClick}>Clicked {count} times</button>;
+};
+Dashboard.getLayout = (page: React.ReactElement) => {
+  return getLayout(page, <Header />);
+};
 
 export default Dashboard;

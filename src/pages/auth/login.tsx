@@ -1,15 +1,16 @@
-import { AppButton } from "@/components/app-button";
+import { AppButton, AppLink } from "@/components/app-button";
 import { CommonCard } from "@/components/app-cards";
 import { FormInput, FormInputError, FormLabel } from "@/components/app-forms";
 import { getLayout } from "@/components/shells/auth-layout";
 import { trpc } from "@/utils/trpc";
+import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import type { FormEvent } from "react";
 
 const Page = () => {
-  const { mutate, error } = trpc.auth.login.useMutation();
+  const { isLoading, mutate, error } = trpc.auth.login.useMutation();
   const router = useRouter();
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -36,6 +37,11 @@ const Page = () => {
       <Head>
         <title>Create T3 App - Login</title>
       </Head>
+      <div className="absolute top-4 left-4 inline-flex">
+        <AppLink href="/" size={"small"} intent="tertiary">
+          <ChevronLeftIcon className="mr-1.5 h-4 w-4" strokeWidth={2} /> Back
+        </AppLink>
+      </div>
       <CommonCard>
         <form onSubmit={onSubmit}>
           <div>
@@ -89,7 +95,9 @@ const Page = () => {
           </div>
 
           <div className="mt-8 flex items-center justify-end">
-            <AppButton type="submit">Login</AppButton>
+            <AppButton type="submit" disabled={isLoading}>
+              Login
+            </AppButton>
           </div>
           <div className="mt-4 text-center">
             <Link

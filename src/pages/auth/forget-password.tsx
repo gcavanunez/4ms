@@ -8,7 +8,7 @@ import { AppButton } from "@/components/app-button";
 import Link from "next/link";
 
 const Page = () => {
-  const { mutate, data } = trpc.auth.passwordEmail.useMutation();
+  const { isLoading, mutate, data } = trpc.auth.passwordEmail.useMutation();
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -54,7 +54,9 @@ const Page = () => {
           </div>
 
           <div className="mt-4 flex items-center justify-end">
-            <AppButton>Email Password Reset Link</AppButton>
+            <AppButton disabled={isLoading}>
+              Email Password Reset Link
+            </AppButton>
           </div>
           <div className="mt-4 text-center">
             <Link
