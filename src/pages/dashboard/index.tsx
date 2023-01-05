@@ -1,7 +1,5 @@
 import { getLayout } from "@/components/shells/app-layout";
-// import AppLayout from "@/components/app-layout";
 import Head from "next/head";
-import { useState } from "react";
 
 const Dashboard = () => {
   return (
@@ -22,18 +20,7 @@ const Dashboard = () => {
     </>
   );
 };
-let renderCount = 0;
-const Header = () => {
-  const [count, setCount] = useState(0);
-  console.log("header render count", renderCount++);
-  function handleClick() {
-    setCount(count + 1);
-  }
 
-  return <button onClick={handleClick}>Clicked {count} times</button>;
-};
-Dashboard.getLayout = (page: React.ReactElement) => {
-  return getLayout(page, <Header />);
-};
+Dashboard.getLayout = getLayout;
 
 export default Dashboard;

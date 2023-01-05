@@ -4,13 +4,18 @@ import { Container } from "@react-email/container";
 import { Head } from "@react-email/head";
 import { Html } from "@react-email/html";
 import { Img } from "@react-email/img";
-import { Link } from "@react-email/link";
+// import { Link } from "@react-email/link";
 import { Preview } from "@react-email/preview";
 import { Section } from "@react-email/section";
 import { Text } from "@react-email/text";
 import * as React from "react";
 
-export default function Email({ url }: { url: string }) {
+export type ForgotPasswordEmailProps = {
+  url: string;
+  name: string;
+};
+
+export default function Email({ url, name }: ForgotPasswordEmailProps) {
   const baseUrl = getBaseUrl();
 
   return (
@@ -27,10 +32,10 @@ export default function Email({ url }: { url: string }) {
           />
           <Section>
             <Container>
-              <Text style={text}>Hi Zeno,</Text>
+              <Text style={text}>Hi {name},</Text>
               <Text style={text}>
-                Someone recently requested a password change for your Dropbox
-                account. If this was you, you can set a new password here:
+                Someone recently requested a password change for your account.
+                If this was you, you can set a new password here:
               </Text>
               <Button style={button} href={url}>
                 Reset password
@@ -41,12 +46,8 @@ export default function Email({ url }: { url: string }) {
               </Text>
               <Text style={text}>
                 To keep your account secure, please don&apos;t forward this
-                email to anyone. See our Help Center for{" "}
-                <Link style={anchor} href="https://dropbox.com">
-                  more security tips.
-                </Link>
+                email to anyone.
               </Text>
-              <Text style={text}>Happy Dropboxing!</Text>
             </Container>
           </Section>
         </Container>
@@ -90,6 +91,6 @@ const button = {
   padding: "14px 7px",
 };
 
-const anchor = {
-  textDecoration: "underline",
-};
+// const anchor = {
+//   textDecoration: "underline",
+// };

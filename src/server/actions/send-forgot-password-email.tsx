@@ -1,10 +1,12 @@
 import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
-import Email from "@/components/emails/forgot-password-email";
+import Email, {
+  type ForgotPasswordEmailProps,
+} from "@/components/emails/forgot-password-email";
 
 import { env } from "@/env/server.mjs";
 
-export const SendEmail = ({ url }: { url: string }) => {
+export const SendEmail = (emailProps: ForgotPasswordEmailProps) => {
   const transporter = nodemailer.createTransport({
     // host: "smtp.ethereal.email",
     // port: 587,
@@ -21,7 +23,7 @@ export const SendEmail = ({ url }: { url: string }) => {
     },
   });
 
-  const emailHtml = render(<Email url={url} />);
+  const emailHtml = render(<Email {...emailProps} />);
 
   const options = {
     from: "you@example.com",

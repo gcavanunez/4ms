@@ -162,7 +162,7 @@ export const authRouter = router({
           token,
         },
       });
-      await SendEmail({ url });
+      await SendEmail({ url, name: user.name });
       return {
         message: "We've emailed you the link to reset your password!",
       };

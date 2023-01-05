@@ -10,6 +10,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^2.0.13",
     "@prisma/client": "^4.5.0",
     "@react-email/button": "^0.0.5",
@@ -31,6 +32,7 @@
     "@types/bcrypt": "^5.0.0",
     "bcrypt": "^5.1.0",
     "class-variance-authority": "^0.4.0",
+    "clsx": "^1.2.1",
     "iron-session": "^6.3.1",
     "next": "13.1.1",
     "nodemailer": "^6.8.0",
