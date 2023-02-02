@@ -6,7 +6,7 @@ import Link from "next/link";
 
 // ⚠️ Disclaimer: Use of Tailwind CSS is optional
 const button = cva(
-  "inline-flex items-center justify-center rounded-md border text-center  font-semibold uppercase tracking-widest transition focus:outline-none focus:ring disabled:opacity-25",
+  "inline-flex items-center justify-center rounded-md border text-center  font-semibold uppercase tracking-widest transition focus:outline-none focus:ring disabled:opacity-25 shadow-sm",
   {
     variants: {
       width: {
@@ -31,6 +31,16 @@ const button = cva(
           "focus:border-red-700",
           "focus:ring-red-200",
           "active:bg-red-600",
+        ],
+        white: [
+          "bg-white",
+          "border-gray-300",
+          "text-gray-700",
+          "hover:text-gray-500",
+          "focus:border-blue-300",
+          "focus:ring-blue-200",
+          "active:bg-gray-50",
+          "active:text-gray-800",
         ],
         secondary: [
           "bg-white",

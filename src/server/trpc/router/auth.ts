@@ -1,8 +1,8 @@
 import { TRPCError } from "@trpc/server";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
-import { router, publicProcedure } from "../trpc";
+import { router, publicProcedure, BadReqTRPCError } from "../trpc";
 import { getServerAuthSession } from "@/server/common/get-server-auth-session";
 import { getBaseUrl } from "@/utils/trpc";
 import { SendEmail } from "@/server/actions/send-forgot-password-email";
@@ -12,20 +12,6 @@ const lessThanOneHourAgo = (date: number) => {
 
   return date > anHourAgo;
 };
-export class BadReqTRPCError extends TRPCError {
-  constructor(message: string, path: string) {
-    const errorConfig = {
-      code: "BAD_REQUEST" as typeof TRPCError.prototype.code,
-      message: message,
-    };
-
-    super({
-      ...errorConfig,
-      // this here fixed it
-      cause: new ZodError([{ code: "custom", path: [path], message }]),
-    });
-  }
-}
 export const authRouter = router({
   login: publicProcedure
     .input(
@@ -221,7 +207,7 @@ export const authRouter = router({
   getUser: publicProcedure.query(async ({ ctx }) => {
     // console.log({ id: ctx.session.user?.id });
     if (!ctx.session.user?.id) {
-      throw new TRPCError({ code: "CONFLICT", cause: "User not found" });
+      throw new TRPCError({ code: "CONFLICT", cause: "User not found in ctx" });
     }
     const user = await ctx.prisma.user.findFirst({
       where: {

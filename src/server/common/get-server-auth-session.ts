@@ -11,9 +11,18 @@ export const getServerAuthSession = async (ctx: {
   res: GetServerSidePropsContext["res"];
   ttl?: number;
 }) => {
+  // https://github.com/vvo/iron-session/blob/70d2ff14aacb51e83284d51832fdcda539b4dabc/src/core.ts#L180 -    Object.defineProperties(
+  // const { save, destroy, user } = await getIronSession(ctx.req, ctx.res, {
   return await getIronSession(ctx.req, ctx.res, {
     ...ironOptions,
     // ttl: 120,
     ttl: ctx.ttl === 0 || ctx.ttl ? ctx.ttl : 3600,
   });
+  // const session = await getIronSession(ctx.req, ctx.res, {
+  //   ...ironOptions,
+  //   // ttl: 120,
+  //   ttl: ctx.ttl === 0 || ctx.ttl ? ctx.ttl : 3600,
+  // });
+  // // console.log(sesh);
+  // return { save: session.save, destroy: session.destroy, user: session.user };
 };

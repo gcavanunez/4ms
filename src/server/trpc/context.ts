@@ -1,6 +1,6 @@
 import { type inferAsyncReturnType } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
-import type { IronSession } from "iron-session";
+import type { IronSession, IronSessionData } from "iron-session";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerAuthSession } from "../common/get-server-auth-session";
 
@@ -14,6 +14,7 @@ import { prisma } from "../db/client";
 // type CreateContextOptions = Record<string, never>;
 type CreateContextOptions = {
   session: IronSession;
+  // session: IronSessionData;
   request: NextApiRequest;
   response: NextApiResponse;
 };
@@ -25,6 +26,12 @@ type CreateContextOptions = {
  **/
 export const createContextInner = async (opts: CreateContextOptions) => {
   return {
+    // session: {
+    //   ...opts.session,
+    //   func: () => {
+    //     console.log("he");
+    //   },
+    // },
     session: opts.session,
     prisma,
     request: opts.request,
@@ -39,8 +46,11 @@ export const createContextInner = async (opts: CreateContextOptions) => {
 export const createContext = async (opts: CreateNextContextOptions) => {
   const { req, res } = opts;
   const session = await getServerAuthSession({ req, res });
-
-  return await createContextInner({ session, request: req, response: res });
+  return await createContextInner({
+    session,
+    request: req,
+    response: res,
+  });
 };
 
 export type Context = inferAsyncReturnType<typeof createContext>;

@@ -1,5 +1,3 @@
-// import useSWR from 'swr'
-// import axios from '@/lib/axios'
 import { trpc } from "./trpc";
 import { useCallback, useEffect } from "react";
 import { useRouter } from "next/router";
@@ -18,7 +16,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: HookProps) => {
     error,
     isLoading,
   } = trpc.auth.getUser.useQuery(undefined, {
-    // staleTime: 1000,
+    staleTime: 1000,
     refetchOnWindowFocus: false,
     retry: false,
   });

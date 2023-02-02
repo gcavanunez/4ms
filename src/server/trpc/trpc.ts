@@ -35,7 +35,16 @@ const isAuthed = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {
       // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      session: {
+        // ...ctx.session,
+        destroy: ctx.session.destroy,
+        save: ctx.session.save,
+        user: ctx.session.user,
+        // ...example,
+        // func: () => {
+        //   console.log("he");
+        // },
+      },
     },
   });
 });
@@ -44,3 +53,18 @@ const isAuthed = t.middleware(({ ctx, next }) => {
  * Protected procedure
  **/
 export const protectedProcedure = t.procedure.use(isAuthed);
+
+export class BadReqTRPCError extends TRPCError {
+  constructor(message: string, path: string) {
+    const errorConfig = {
+      code: "BAD_REQUEST" as typeof TRPCError.prototype.code,
+      message: message,
+    };
+
+    super({
+      ...errorConfig,
+      // this here fixed it
+      cause: new ZodError([{ code: "custom", path: [path], message }]),
+    });
+  }
+}

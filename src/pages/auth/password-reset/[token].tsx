@@ -10,7 +10,7 @@ import { trpc } from "@/utils/trpc";
 const Page = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const { mutate, error } = trpc.auth.passwordReset.useMutation();
+  const { isLoading, mutate, error } = trpc.auth.passwordReset.useMutation();
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -93,7 +93,7 @@ const Page = () => {
         </div>
 
         <div className="mt-4 flex">
-          <AppButton>Reset Password</AppButton>
+          <AppButton disabled={isLoading}>Reset Password</AppButton>
         </div>
       </form>
     </CommonCard>

@@ -1,9 +1,31 @@
 import { AppButton } from "@/components/app-button";
 import { FormInput, FormInputError, FormLabel } from "@/components/app-forms";
 import { getLayout } from "@/components/shells/account-settings-layout";
+import { trpc } from "@/utils/trpc";
 import Head from "next/head";
+import type { FormEvent } from "react";
 
 const ProfilePage = () => {
+  const { isLoading, mutate, error } =
+    trpc.profile.updatePassword.useMutation();
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const form = Object.fromEntries(data.entries());
+    if (form.current_password && form.new_password && form.password_confirm) {
+      mutate(
+        {
+          current_password: String(form.current_password),
+          new_password: String(form.new_password),
+          password_confirm: String(form.password_confirm),
+        },
+        {
+          // onSuccess: (payload) => {},
+        }
+      );
+    }
+  };
   return (
     <>
       <Head>
@@ -11,7 +33,7 @@ const ProfilePage = () => {
       </Head>
       <div className="flex-1">
         <div className="w-full rounded-lg bg-white shadow-sm">
-          <form method="post">
+          <form onSubmit={onSubmit}>
             <div className="shadow sm:overflow-hidden sm:rounded-md">
               <div className="bg-white py-6 px-4 sm:p-6">
                 <div>
@@ -35,6 +57,15 @@ const ProfilePage = () => {
                       className="mt-1 block w-full"
                       required
                     />
+
+                    <FormInputError
+                      messages={
+                        error?.data?.zodError?.fieldErrors[
+                          "current_password"
+                        ] || []
+                      }
+                      className="mt-2"
+                    />
                   </div>
                   <div className="mt-4 max-w-md">
                     <FormLabel htmlFor="new-password">New Password</FormLabel>
@@ -44,6 +75,12 @@ const ProfilePage = () => {
                       name="new_password"
                       className="mt-1 block w-full"
                       required
+                    />
+                    <FormInputError
+                      messages={
+                        error?.data?.zodError?.fieldErrors["new_password"] || []
+                      }
+                      className="mt-2"
                     />
                   </div>
                   <div className="mt-4 max-w-md">
@@ -57,16 +94,22 @@ const ProfilePage = () => {
                       className="mt-1 block w-full"
                       required
                     />
-                    {/* <FormInputError
-                      messages={error?.data?.zodError?.fieldErrors["email"] || []}
+                    <FormInputError
+                      messages={
+                        error?.data?.zodError?.fieldErrors[
+                          "password_confirm"
+                        ] || []
+                      }
                       className="mt-2"
-                    /> */}
+                    />
                   </div>
                 </div>
               </div>
               <div className="flex border-t bg-slate-50  px-4 py-3 text-right sm:px-6">
                 <div className=" ">
-                  <AppButton type="submit">Save</AppButton>
+                  <AppButton type="submit" disabled={isLoading}>
+                    Save
+                  </AppButton>
                 </div>
               </div>
             </div>

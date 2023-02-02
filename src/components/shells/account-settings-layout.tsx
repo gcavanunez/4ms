@@ -25,7 +25,7 @@ const ActiveLink = ({
       scroll={false}
       className={`${
         isActive
-          ? "bg-slate-50 text-indigo-600 hover:bg-white"
+          ? "bg-white text-indigo-600 shadow-sm hover:bg-white"
           : "text-slate-900 hover:bg-slate-50 hover:text-slate-900"
       } ${className} group flex items-center rounded-md  px-3 py-2 text-sm font-medium `}
     >
@@ -59,26 +59,12 @@ const AccountSettingsLayout: React.FC<PropsWithChildren> = ({ children }) => {
               </ActiveLink>
             </div>
             <select
-              name="side_nav"
               aria-label="Navigation items"
-              className="focus-ring border-secondary bg-primary mb-4 inline-block h-4 rounded border py-0 pl-1.5 pr-4 font-semibold shadow-sm lg:hidden"
+              name="side_nav"
+              className=" mb-4 rounded-md border-gray-300  font-semibold shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 lg:hidden"
             >
-              <option value="/gcavanunez/settings">General</option>
-              <option value="/gcavanunez/settings/audit-log">Audit log</option>
-              <option value="/gcavanunez/settings/beta-features">
-                Beta features
-              </option>
-              <option value="/gcavanunez/settings/integrations">
-                Integrations
-              </option>
-              <option value="/gcavanunez/settings/members">Members</option>
-              <option value="/gcavanunez/settings/service-tokens">
-                Service tokens
-              </option>
-              <option value="/gcavanunez/settings/teams">Teams</option>
-              <option value="/gcavanunez/settings/billing">
-                Usage and billing
-              </option>
+              <option value="/dashboard/profile">Profile</option>
+              <option value="/dashboard/profile-password">Password</option>
             </select>
           </div>
           <div className="flex-1">{children}</div>
