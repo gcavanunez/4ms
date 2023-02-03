@@ -1,40 +1,164 @@
-import type { HTMLAttributes, PropsWithChildren } from "react";
+import type {
+  Dispatch,
+  HTMLAttributes,
+  PropsWithChildren,
+  SetStateAction,
+} from "react";
+import React, { forwardRef } from "react";
 import { useState } from "react";
 import classNames from "clsx";
-// import JetApplicationMark from "./application-mark";
-import JetDropdown from "../app-dropdown";
-// import JetDropdownLink from "./dropdown-link";
-// import JetNavigationLink from "./navigation-link";
-// import JetResponsiveNavigationLink from "./responsive-navigation-link";
 import { useRouter } from "next/router";
-
-// import { useFeatures, useUser } from "../helpers/auth";
 
 import type { LinkProps } from "next/link";
 import Link from "next/link";
 import { useAuth } from "@/utils/auth";
+import { ConfirmationDialog } from "../app-confirm-dialog";
+import { AppButton } from "../app-button";
+
+import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import type { User } from "@prisma/client";
+
+const LogoutAction = ({
+  confirmAction,
+  children,
+}: {
+  children: ({}: {
+    setOpen: Dispatch<SetStateAction<boolean>>;
+    open: boolean;
+  }) => React.ReactNode;
+  confirmAction: () => Promise<void>;
+}) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <>{children({ setOpen, open })}</>
+      <ConfirmationDialog
+        footer={
+          <div className="flex space-x-3">
+            <div>
+              <AppButton
+                type="button"
+                intent="white"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </AppButton>
+            </div>
+            <div>
+              <AppButton type="button" intent="danger" onClick={confirmAction}>
+                Logout
+              </AppButton>
+            </div>
+          </div>
+        }
+        open={open}
+        setOpen={setOpen}
+        title={"Are you sure?"}
+      >
+        Please confirm if you want to logout.
+      </ConfirmationDialog>
+    </>
+  );
+};
+
+const UserDropdown = ({
+  user,
+  logout,
+}: {
+  user: User;
+  logout: () => Promise<void>;
+}) => {
+  return (
+    <LogoutAction confirmAction={logout}>
+      {({ setOpen }) => {
+        return (
+          <Menu as="div" className="relative inline-block text-left">
+            <div>
+              <Menu.Button className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none focus:ring">
+                {user.name}
+                <ChevronDownIcon
+                  className="ml-2 -mr-0.5 h-4 w-4"
+                  aria-hidden="true"
+                />
+              </Menu.Button>
+            </div>
+            <Transition
+              as={Fragment}
+              enter="transition ease-out duration-100"
+              enterFrom="transform opacity-0 scale-95"
+              enterTo="transform opacity-100 scale-100"
+              leave="transition ease-in duration-75"
+              leaveFrom="transform opacity-100 scale-100"
+              leaveTo="transform opacity-0 scale-95"
+            >
+              <Menu.Items
+                className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                unmount={false}
+              >
+                <div className=" py-1">
+                  <div className="block px-4 py-2 text-xs text-gray-400">
+                    Manage Account
+                  </div>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <JetDropdownLink
+                        href="/dashboard/profile"
+                        active={active}
+                      >
+                        Settings
+                      </JetDropdownLink>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        onClick={() => setOpen(true)}
+                        className={classNames(
+                          "block w-full px-4 py-2 text-left text-sm leading-5 text-gray-700 transition duration-150  ease-in-out focus:outline-none",
+                          active
+                            ? "bg-gray-100"
+                            : "hover:bg-gray-100 focus:bg-gray-100"
+                        )}
+                      >
+                        Logout
+                      </button>
+                    )}
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
+        );
+      }}
+    </LogoutAction>
+  );
+  // </div>
+};
 
 interface Props extends LinkProps {
   className?: Pick<HTMLAttributes<HTMLAnchorElement>, "className">;
 }
 
-const JetDropdownLink = ({
-  className,
-  children,
-  ...props
-}: PropsWithChildren<Props>) => {
+const JetDropdownLink = forwardRef<
+  React.ElementRef<typeof Link>,
+  PropsWithChildren<Props>
+>(function JetDropdownLinkFunc({ className, children, ...props }, ref) {
   return (
     <Link
+      ref={ref}
       {...props}
       className={classNames(
-        "block px-4 py-2 text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none",
-        className
+        "block px-4 py-2 text-sm leading-5 text-gray-700 transition duration-150 ease-in-out  focus:outline-none",
+        className,
+        props.active ? "bg-gray-100" : "hover:bg-gray-100 focus:bg-gray-100"
       )}
     >
       {children}
     </Link>
   );
-};
+});
 
 const jetActiveClass =
   "inline-flex items-center px-1 pt-1 border-b-2 border-indigo-400 text-sm font-medium leading-5 text-gray-900 focus:outline-none focus:border-indigo-700 transition duration-150 ease-in-out";
@@ -95,7 +219,6 @@ export default function JetNavigation() {
   const { user, logout } = useAuth({ middleware: "auth" });
 
   const [mobileOpen, setMobileOpen] = useState(false);
-  // const { hasProfilePhotoFeatures, hasApiFeatures } = useFeatures();
   const router = useRouter();
 
   return (
@@ -109,7 +232,11 @@ export default function JetNavigation() {
                 aria-label="Go to dashboard"
                 href="/"
               >
-                <img src={"/static/next.svg"} className="h-8 w-full" />
+                <img
+                  src={"/static/next.svg"}
+                  className="h-8 w-full"
+                  alt="Next logo"
+                />
               </Link>
             </div>
 
@@ -124,58 +251,8 @@ export default function JetNavigation() {
           </div>
 
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <div className="relative ml-3">
-              <JetDropdown
-                renderTrigger={({ Trigger }) => (
-                  <span className="inline-flex rounded-md">
-                    <Trigger className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
-                      {user?.user.name}
-                      <svg
-                        className="ml-2 -mr-0.5 h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </Trigger>
-                  </span>
-                )}
-              >
-                {({ DropdownItem }) => (
-                  <>
-                    <div className="block px-4 py-2 text-xs text-gray-400">
-                      Manage Account
-                    </div>
-                    <DropdownItem>
-                      <JetDropdownLink href="/dashboard/profile">
-                        Settings
-                      </JetDropdownLink>
-                    </DropdownItem>
-                    {/* {hasApiFeatures && (
-                      <DropdownItem>
-                        <JetDropdownLink href="/settings/api-tokens">
-                          API Tokens
-                        </JetDropdownLink>
-                      </DropdownItem> */}
-
-                    <div className="border-t border-gray-100"></div>
-                    <DropdownItem>
-                      <button
-                        onClick={logout}
-                        className={
-                          "block w-full px-4 py-2 text-left  text-sm leading-5 text-gray-700 transition duration-150 ease-in-out hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                        }
-                      >
-                        Logout
-                      </button>
-                    </DropdownItem>
-                  </>
-                )}
-              </JetDropdown>
+            <div className="relative ml-3 flex space-x-3">
+              {user?.user && <UserDropdown user={user?.user} logout={logout} />}
             </div>
           </div>
 
@@ -260,14 +337,14 @@ export default function JetNavigation() {
               Settings
             </JetResponsiveNavigationLink>
 
-            <a
-              href="/logout"
+            <button
+              onClick={logout}
               className={
                 "block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 transition duration-150 ease-in-out hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 focus:border-gray-300 focus:bg-gray-50 focus:text-gray-800 focus:outline-none"
               }
             >
               Logout
-            </a>
+            </button>
           </div>
         </div>
       </div>
